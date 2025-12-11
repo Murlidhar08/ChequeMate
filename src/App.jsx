@@ -1,14 +1,21 @@
 // Components
 import ChequeDesigner from './components/ChequeDesigner.jsx'
 
-// Styles
-import './App.css'
-
 function App() {
   return (
-    <div style={{ padding: 20 }}>
-      <h1>Cheque Designer</h1>
+    <div className='bg-amber-200 min-h-screen flex justify-center items-center'>
       <ChequeDesigner />
+
+      <img
+        src="/images/Cheque.png"
+        alt="Cheque"
+        style={{
+          // exact physical size: 21cm x 9cm
+          width: "21cm",
+          height: "9cm",
+          // set a consistent DPI-friendly fallback min width in px for screen editing
+        }}
+      />
     </div>
   )
 }

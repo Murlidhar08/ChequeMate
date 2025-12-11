@@ -1,133 +1,53 @@
-// components/ChequeDesigner.js
-import React, { useRef, useState } from "react";
-import "./ChequeDesigner.css";
+// Packages
+import React, { useRef } from "react";
+import { useReactToPrint } from "react-to-print";
+import Draggable from "react-draggable";
+import { Button } from "@/components/ui/button";
 
 export default function ChequeDesigner() {
-    const containerRef = useRef(null);
+    const contentRef = useRef(null); // for printing
+    const nodeRef = useRef(null);    // for draggable
 
-    // Designer fields
-    const [fields, setFields] = useState([
-        { id: 1, label: "Payee Name", x: 60, y: 60 },
-        { id: 2, label: "Amount (₹)", x: 300, y: 60 },
-        { id: 3, label: "Date", x: 450, y: 20 },
-    ]);
-
-    // Active drag field
-    const dragRef = useRef({ id: null, offsetX: 0, offsetY: 0 });
-
-    // --- Handle Drag Start ---
-    const handlePointerDown = (e, field) => {
-        const rect = containerRef.current.getBoundingClientRect();
-        dragRef.current = {
-            id: field.id,
-            offsetX: e.clientX - rect.left - field.x,
-            offsetY: e.clientY - rect.top - field.y,
-        };
-        containerRef.current.setPointerCapture(e.pointerId);
-    };
-
-    // --- Handle Drag Move ---
-    const handlePointerMove = (e) => {
-        if (!dragRef.current.id) return;
-        const rect = containerRef.current.getBoundingClientRect();
-
-        const x = e.clientX - rect.left - dragRef.current.offsetX;
-        const y = e.clientY - rect.top - dragRef.current.offsetY;
-
-        setFields((prev) =>
-            prev.map((f) =>
-                f.id === dragRef.current.id ? { ...f, x, y } : f
-            )
-        );
-    };
-
-    // --- Stop Drag ---
-    const handlePointerUp = () => {
-        dragRef.current.id = null;
-    };
-
-    // --- Add New Field ---
-    const addField = () => {
-        const label = prompt("Enter field label:");
-        if (!label) return;
-
-        setFields((prev) => [
-            ...prev,
-            {
-                id: Date.now(),
-                label,
-                x: 100,
-                y: 100,
-            },
-        ]);
-    };
-
-    // --- Edit Label ---
-    const editField = (field) => {
-        const newLabel = prompt("Edit label:", field.label);
-        if (!newLabel) return;
-
-        setFields((prev) =>
-            prev.map((f) =>
-                f.id === field.id ? { ...f, label: newLabel } : f
-            )
-        );
-    };
-
-    // --- Delete Field ---
-    const deleteField = (field) => {
-        if (!window.confirm("Delete this field?")) return;
-        setFields((prev) => prev.filter((f) => f.id !== field.id));
-    };
-
-    // --- PRINT Cheque ---
-    const handlePrint = () => {
-        window.print();
-    };
+    const reactToPrintFn = useReactToPrint({
+        content: nodeRef,
+        pageStyle: `
+        @page {
+            size: DL landscape;
+            margin: 0;
+        }
+        @media print {
+            html, body {
+                padding: 0;
+                margin: 0;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+        `,
+    });
 
     return (
-        <div className="designer-wrapper">
+        <div className='absolute'>
+            <Button variant="default" onClick={reactToPrintFn}>Print</Button>
 
-            {/* HEADER TOOLS (not printed) */}
-            <div className="designer-tools no-print">
-                <button onClick={addField}>➕ Add Field</button>
-                <button onClick={handlePrint}>🖨 Print Cheque</button>
-            </div>
-
-            {/* CHEQUE CANVAS */}
-            <div
-                ref={containerRef}
-                className="cheque-container"
-                onPointerMove={handlePointerMove}
-                onPointerUp={handlePointerUp}
-                onPointerLeave={handlePointerUp}
-            >
-                {fields.map((field) => (
-                    <div
-                        key={field.id}
-                        className="field-item"
-                        style={{
-                            left: field.x,
-                            top: field.y,
-                        }}
-                        onPointerDown={(e) => handlePointerDown(e, field)}
-                        onDoubleClick={() => editField(field)}
-                    >
-                        {field.label}
-
-                        {/* Delete Button (only visible in designer mode) */}
-                        <button
-                            className="delete-btn no-print"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                deleteField(field);
-                            }}
-                        >
-                            ✕
-                        </button>
+            <Draggable nodeRef={nodeRef}>
+                <div
+                    ref={nodeRef}  // IMPORTANT for react-draggable
+                    className="bg-red-200"
+                    style={{
+                        width: "21cm",
+                        height: "9cm",
+                        maxWidth: "100%",
+                    }}
+                >
+                    {/* Printable area wrapper */}
+                    <div ref={contentRef}>
+                        This is cheque designer
+                        {/* Everything inside this div will be printed */}
                     </div>
-                ))}
-            </div>
+                </div>
+            </Draggable>
         </div>
     );
 }
