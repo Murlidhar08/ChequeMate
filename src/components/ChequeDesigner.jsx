@@ -9,7 +9,7 @@ export default function ChequeDesigner() {
     const nodeRef = useRef(null);    // for draggable
 
     const reactToPrintFn = useReactToPrint({
-        content: nodeRef,
+        contentRef,
         pageStyle: `
         @page {
             size: DL landscape;
@@ -33,8 +33,8 @@ export default function ChequeDesigner() {
 
             <Draggable nodeRef={nodeRef}>
                 <div
-                    ref={nodeRef}  // IMPORTANT for react-draggable
-                    className="bg-red-200"
+                    ref={nodeRef}
+                    className="bg-red-200 opacity-90"
                     style={{
                         width: "21cm",
                         height: "9cm",
