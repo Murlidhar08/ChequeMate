@@ -11,8 +11,8 @@ function App() {
         alt="Cheque"
         style={{
           // exact physical size: 21cm x 9cm
-          width: "21cm",
-          height: "9cm",
+          width: "20.2cm",
+          height: "9.3cm",
           // set a consistent DPI-friendly fallback min width in px for screen editing
         }}
       />
