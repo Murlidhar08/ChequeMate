@@ -1,8 +1,15 @@
 // Packages
-import React, { useRef } from "react";
+import React, { useState, useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 import Draggable from "react-draggable";
 import { Button } from "@/components/ui/button";
+
+const chequeSizes = {
+    DL: { width: "22cm", height: "11cm" },
+    STANDARD: { width: "21cm", height: "9cm" },
+    PERSONAL: { width: "20.3cm", height: "8.6cm" },
+    CUSTOM: null // user inputs
+};
 
 export default function ChequeDesigner() {
     const contentRef = useRef(null);
@@ -14,10 +21,15 @@ export default function ChequeDesigner() {
     const amountWordsRef = useRef(null);
     const dateRef = useRef(null);
 
+    const [selected, setSelected] = useState("PERSONAL");
+
     const reactToPrintFn = useReactToPrint({
         contentRef,
         pageStyle: `
-            @page { size: DL landscape; margin: 0; }
+            @page {
+                size: ${chequeSizes[selected].width} ${chequeSizes[selected].height};
+                margin: 0;
+            }
             @media print {
                 html, body { margin: 0; padding: 0; }
                 .no-print { display: none !important; }
@@ -34,8 +46,8 @@ export default function ChequeDesigner() {
                     ref={outerRef}
                     className="bg-red-200 opacity-90 relative cheque-area"
                     style={{
-                        width: "22cm",
-                        height: "11cm",
+                        width: chequeSizes[selected].width,
+                        height: chequeSizes[selected].height,
                         maxWidth: "100%",
                         position: "relative"
                     }}
